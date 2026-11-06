@@ -4,44 +4,32 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.activity.viewModels
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.proyectointegrador.presentation.ListaScreen
 import com.example.proyectointegrador.ui.theme.ProyectoIntegradorTheme
+import com.example.proyectointegrador.viewmodel.CitaViewModel
 
 class MainActivity : ComponentActivity() {
+    private val viewModel: CitaViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ProyectoIntegradorTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val navController = rememberNavController()
+
+                NavHost(navController = navController, startDestination = "lista") {
+                    composable("lista") {
+                        ListaScreen(viewModel) {
+                            // Aquí irá la navegación al formulario (paso 4)
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ProyectoIntegradorTheme {
-        Greeting("Android")
     }
 }
