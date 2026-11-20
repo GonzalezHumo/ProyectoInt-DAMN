@@ -42,13 +42,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.proyectointegrador.data.Cita
 import com.example.proyectointegrador.viewmodel.CitaViewModel
+import androidx.compose.material3.Button
 
 private val estatusOpciones = listOf("Pendiente", "Confirmada", "Finalizada", "Cancelada")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () -> Unit) {
-    // Cada vez que Room cambia, esta lista se actualiza sola
+fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () -> Unit, onCerrar: () -> Unit) {    // Cada vez que Room cambia, esta lista se actualiza sola
     val citas by viewModel.citas.collectAsState(initial = emptyList())
 
     var menuFiltro by remember { mutableStateOf(false) }
@@ -118,6 +118,11 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () ->
                             viewModel.citaEnEdicion = cita
                             onEditar()
                         },
+                        onCerrar = {
+                            viewModel.citaEnEdicion = cita
+                            onCerrar()
+                        },
+
                         onEliminar = { viewModel.eliminar(cita) }
                     )
                 }
@@ -131,7 +136,9 @@ fun CitaItem(
     cita: Cita,
     onCambiarEstatus: (String) -> Unit,
     onEditar: () -> Unit,
+    onCerrar: () -> Unit,
     onEliminar: () -> Unit
+
 ) {
     var menuEstatus by remember { mutableStateOf(false) }
 
@@ -174,6 +181,13 @@ fun CitaItem(
                                 }
                             )
                         }
+                    }
+                }
+                // Solo se puede cerrar una cita que sigue abierta
+                if (cita.estatus != "Finalizada" && cita.estatus != "Cancelada") {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Button(onClick = onCerrar) {
+                        Text("Cerrar cita")
                     }
                 }
             }
