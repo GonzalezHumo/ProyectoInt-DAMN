@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Cita::class], version = 1)
+@Database(entities = [Cita::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun citaDao(): CitaDao
 
@@ -19,7 +19,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "salon_db"
-                ).build()
+
+                ).fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

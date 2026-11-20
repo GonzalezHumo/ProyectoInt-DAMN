@@ -183,7 +183,8 @@ fun FormularioScreen(citaEnEdicion: Cita?, onGuardar: (Cita) -> Unit) {
                                 anticipo = anticipo,
                                 montoAnticipo = if (anticipo) montoNumero ?: 0.0 else 0.0,
                                 estatus = citaEnEdicion?.estatus ?: "Pendiente",
-                                precioFinal = citaEnEdicion?.precioFinal ?: 0.0
+                                precioFinal = citaEnEdicion?.precioFinal ?: 0.0,
+                                propina = citaEnEdicion?.propina ?: 0.0
                             )
                         )
                     }
