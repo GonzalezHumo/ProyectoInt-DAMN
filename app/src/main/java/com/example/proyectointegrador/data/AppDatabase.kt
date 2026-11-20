@@ -5,13 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Cita::class], version = 2)
+@Database(entities = [Cita::class, Producto::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun citaDao(): CitaDao
+    abstract fun productoDao(): ProductoDao
 
     companion object {
-        @Volatile
-        private var INSTANCE: AppDatabase? = null
+        @Volatile private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -19,9 +19,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "salon_db"
-
                 ).fallbackToDestructiveMigration(true)
-                .build()
+                    .build()
                 INSTANCE = instance
                 instance
             }
