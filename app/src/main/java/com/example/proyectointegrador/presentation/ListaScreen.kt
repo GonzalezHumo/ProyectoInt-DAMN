@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -48,8 +49,7 @@ private val estatusOpciones = listOf("Pendiente", "Confirmada", "Finalizada", "C
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () -> Unit, onCerrar: () -> Unit) {    // Cada vez que Room cambia, esta lista se actualiza sola
-    val citas by viewModel.citas.collectAsState(initial = emptyList())
+fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () -> Unit, onCerrar: () -> Unit, onProductos: () -> Unit) {    val citas by viewModel.citas.collectAsState(initial = emptyList())
 
     var menuFiltro by remember { mutableStateOf(false) }
     var filtro by remember { mutableStateOf("Todas") }
@@ -67,6 +67,9 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () ->
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
                 actions = {
+                    IconButton(onClick = onProductos) {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = "Productos")
+                    }
                     IconButton(onClick = { menuFiltro = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "Filtrar")
                     }
