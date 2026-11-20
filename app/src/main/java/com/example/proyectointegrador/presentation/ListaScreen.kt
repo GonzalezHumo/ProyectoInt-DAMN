@@ -190,6 +190,22 @@ fun CitaItem(
                         Text("Cerrar cita")
                     }
                 }
+                // Resumen de cobro: solo cuando la cita ya está finalizada
+                if (cita.estatus == "Finalizada") {
+                    val descuento = if (cita.anticipo) cita.montoAnticipo else 0.0
+                    val total = cita.precioFinal - descuento + cita.propina
+
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Precio final: $${"%.2f".format(cita.precioFinal)}")
+                    if (cita.anticipo) {
+                        Text("Anticipo descontado: -$${"%.2f".format(descuento)}")
+                    }
+                    Text("Propina: $${"%.2f".format(cita.propina)}")
+                    Text(
+                        "Total a cobrar: $${"%.2f".format(total)}",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
             }
             IconButton(onClick = onEditar) {
                 Icon(Icons.Default.Edit, contentDescription = "Editar cita")
