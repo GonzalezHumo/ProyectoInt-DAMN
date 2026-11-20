@@ -13,6 +13,8 @@ import com.example.proyectointegrador.presentation.FormularioScreen
 import com.example.proyectointegrador.presentation.ListaScreen
 import com.example.proyectointegrador.ui.theme.ProyectoIntegradorTheme
 import com.example.proyectointegrador.viewmodel.CitaViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 class MainActivity : ComponentActivity() {
 
@@ -38,7 +40,12 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable("formulario") {
-                        FormularioScreen(citaEnEdicion = viewModel.citaEnEdicion) { cita ->
+                        // Lista de citas actuales, para revisar empalmes al guardar
+                        val citas by viewModel.citas.collectAsState(initial = emptyList())
+                        FormularioScreen(
+                            citaEnEdicion = viewModel.citaEnEdicion,
+                            citasExistentes = citas
+                        ) { cita ->
                             if (viewModel.citaEnEdicion == null) viewModel.guardar(cita)
                             else viewModel.actualizar(cita)
                             navController.popBackStack()

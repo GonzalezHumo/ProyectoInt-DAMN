@@ -59,8 +59,7 @@ private fun empleadasDisponibles(serviciosElegidos: List<String>): List<String> 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormularioScreen(citaEnEdicion: Cita?, onGuardar: (Cita) -> Unit) {
-    val context = LocalContext.current
+fun FormularioScreen(citaEnEdicion: Cita?, citasExistentes: List<Cita>, onGuardar: (Cita) -> Unit) {    val context = LocalContext.current
 
     // Si hay una cita en edición, los campos arrancan con sus datos; si no, vacíos
     var nombre by remember { mutableStateOf(citaEnEdicion?.nombreClienta ?: "") }
@@ -162,6 +161,14 @@ fun FormularioScreen(citaEnEdicion: Cita?, onGuardar: (Cita) -> Unit) {
             Button(
                 onClick = {
                     val montoNumero = monto.toDoubleOrNull()
+                    // Busca otra cita (que no sea esta, ni cancelada) a la misma fecha y hora con alguna de las mismas empleadas
+                    val conflicto = citasExistentes.firstOrNull { otra ->
+                        otra.id != (citaEnEdicion?.id ?: 0) &&
+                                otra.estatus != "Cancelada" &&
+                                otra.fecha == fecha &&
+                                otra.hora == hora &&
+                                otra.estilista.split(", ").any { it in empleadasElegidas }
+                    }
                     when {
                         nombre.isBlank() -> Toast.makeText(context, "Escribe el nombre", Toast.LENGTH_SHORT).show()
                         celular.isBlank() -> Toast.makeText(context, "Escribe el celular", Toast.LENGTH_SHORT).show()
@@ -169,6 +176,16 @@ fun FormularioScreen(citaEnEdicion: Cita?, onGuardar: (Cita) -> Unit) {
                         empleadasElegidas.isEmpty() -> Toast.makeText(context, "Elige quién atiende", Toast.LENGTH_SHORT).show()
                         fecha.isBlank() -> Toast.makeText(context, "Elige la fecha", Toast.LENGTH_SHORT).show()
                         hora.isBlank() -> Toast.makeText(context, "Elige la hora", Toast.LENGTH_SHORT).show()
+                        conflicto != null -> {
+                            val ocupadas = conflicto.estilista.split(", ")
+                                .filter { it in empleadasElegidas }
+                                .joinToString(", ")
+                            Toast.makeText(
+                                context,
+                                "$ocupadas ya tiene una cita el $fecha a las $hora",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                         anticipo && montoNumero == null -> Toast.makeText(context, "Escribe un monto válido", Toast.LENGTH_SHORT).show()
                         else -> onGuardar(
                             Cita(
