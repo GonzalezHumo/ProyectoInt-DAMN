@@ -1,5 +1,6 @@
 package com.example.proyectointegrador.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,8 +16,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -29,11 +33,16 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.proyectointegrador.data.Cita
 import com.example.proyectointegrador.viewmodel.CitaViewModel
+
+private val estatusOpciones = listOf("Pendiente", "Confirmada", "Finalizada", "Cancelada")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,13 +50,41 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit) {
     // Cada vez que Room cambia, esta lista se actualiza sola
     val citas by viewModel.citas.collectAsState(initial = emptyList())
 
+    var menuFiltro by remember { mutableStateOf(false) }
+    var filtro by remember { mutableStateOf("Todas") }
+
+    // Se filtra la lista que viene de Room, igual que en MiniProyecto02
+    val citasVisibles = if (filtro == "Todas") citas else citas.filter { it.estatus == filtro }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("RAM Beauty") },
+                title = {
+                    Text(if (filtro == "Todas") "RAM Beauty" else "RAM Beauty - $filtro")
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { menuFiltro = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Filtrar")
+                    }
+                    DropdownMenu(
+                        expanded = menuFiltro,
+                        onDismissRequest = { menuFiltro = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Ver todas") },
+                            onClick = { filtro = "Todas"; menuFiltro = false }
+                        )
+                        estatusOpciones.forEach { opcion ->
+                            DropdownMenuItem(
+                                text = { Text("Ver ${opcion.lowercase()}s") },
+                                onClick = { filtro = opcion; menuFiltro = false }
+                            )
+                        }
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -56,12 +93,15 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit) {
             }
         }
     ) { paddingValues ->
-        if (citas.isEmpty()) {
+        if (citasVisibles.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize().padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Aún no hay citas. ¡Agrega una!")
+                Text(
+                    if (filtro == "Todas") "Aún no hay citas. ¡Agrega una!"
+                    else "No hay citas con estatus $filtro"
+                )
             }
         } else {
             LazyColumn(
@@ -69,8 +109,12 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit) {
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(citas, key = { it.id }) { cita ->
-                    CitaItem(cita) { viewModel.eliminar(cita) }
+                items(citasVisibles, key = { it.id }) { cita ->
+                    CitaItem(
+                        cita = cita,
+                        onCambiarEstatus = { viewModel.cambiarEstatus(cita, it) },
+                        onEliminar = { viewModel.eliminar(cita) }
+                    )
                 }
             }
         }
@@ -78,7 +122,9 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit) {
 }
 
 @Composable
-fun CitaItem(cita: Cita, onEliminar: () -> Unit) {
+fun CitaItem(cita: Cita, onCambiarEstatus: (String) -> Unit, onEliminar: () -> Unit) {
+    var menuEstatus by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -96,9 +142,30 @@ fun CitaItem(cita: Cita, onEliminar: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text("Servicios: ${cita.servicio}")
-                Text("Atendida por: ${cita.estilista}")
+                Text("Atiende: ${cita.estilista}")
                 Text("Celular: ${cita.celular}")
-                Text("Estatus: ${cita.estatus}")
+
+                // Al tocar el estatus se abre el menú para cambiarlo
+                Box {
+                    Text(
+                        "Estatus: ${cita.estatus} (toca para cambiar)",
+                        modifier = Modifier.clickable { menuEstatus = true }
+                    )
+                    DropdownMenu(
+                        expanded = menuEstatus,
+                        onDismissRequest = { menuEstatus = false }
+                    ) {
+                        estatusOpciones.forEach { opcion ->
+                            DropdownMenuItem(
+                                text = { Text(opcion) },
+                                onClick = {
+                                    onCambiarEstatus(opcion)
+                                    menuEstatus = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
             IconButton(onClick = onEliminar) {
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar cita")
