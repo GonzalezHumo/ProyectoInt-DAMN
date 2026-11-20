@@ -8,4 +8,6 @@ class CitaRepository(private val dao: CitaDao) {
     suspend fun guardar(cita: Cita) = dao.insertar(cita)
 
     suspend fun eliminar(cita: Cita) = dao.eliminar(cita)
+
+    suspend fun actualizar(cita: Cita) = dao.actualizar(cita)
 }

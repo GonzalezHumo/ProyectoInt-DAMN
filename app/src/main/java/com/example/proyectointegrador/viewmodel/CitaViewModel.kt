@@ -26,5 +26,11 @@ class CitaViewModel(application: Application) : AndroidViewModel(application) {
             repository.eliminar(cita)
         }
     }
+
+    fun cambiarEstatus(cita: Cita, estatus: String) {
+        viewModelScope.launch {
+            repository.actualizar(cita.copy(estatus = estatus))
+        }
+    }
 }
 
