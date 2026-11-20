@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,7 +47,7 @@ private val estatusOpciones = listOf("Pendiente", "Confirmada", "Finalizada", "C
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit) {
+fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () -> Unit) {
     // Cada vez que Room cambia, esta lista se actualiza sola
     val citas by viewModel.citas.collectAsState(initial = emptyList())
 
@@ -113,6 +114,10 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit) {
                     CitaItem(
                         cita = cita,
                         onCambiarEstatus = { viewModel.cambiarEstatus(cita, it) },
+                        onEditar = {
+                            viewModel.citaEnEdicion = cita
+                            onEditar()
+                        },
                         onEliminar = { viewModel.eliminar(cita) }
                     )
                 }
@@ -122,7 +127,12 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit) {
 }
 
 @Composable
-fun CitaItem(cita: Cita, onCambiarEstatus: (String) -> Unit, onEliminar: () -> Unit) {
+fun CitaItem(
+    cita: Cita,
+    onCambiarEstatus: (String) -> Unit,
+    onEditar: () -> Unit,
+    onEliminar: () -> Unit
+) {
     var menuEstatus by remember { mutableStateOf(false) }
 
     Card(
@@ -166,6 +176,9 @@ fun CitaItem(cita: Cita, onCambiarEstatus: (String) -> Unit, onEliminar: () -> U
                         }
                     }
                 }
+            }
+            IconButton(onClick = onEditar) {
+                Icon(Icons.Default.Edit, contentDescription = "Editar cita")
             }
             IconButton(onClick = onEliminar) {
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar cita")

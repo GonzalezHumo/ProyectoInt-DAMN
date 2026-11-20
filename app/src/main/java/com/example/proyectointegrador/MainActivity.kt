@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.proyectointegrador.presentation.FormularioScreen
 import com.example.proyectointegrador.presentation.ListaScreen
 import com.example.proyectointegrador.ui.theme.ProyectoIntegradorTheme
 import com.example.proyectointegrador.viewmodel.CitaViewModel
@@ -24,8 +25,20 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(navController = navController, startDestination = "lista") {
                     composable("lista") {
-                        ListaScreen(viewModel) {
-                            // Aquí irá la navegación al formulario (paso 4)
+                        ListaScreen(
+                            viewModel = viewModel,
+                            onAgregar = {
+                                viewModel.citaEnEdicion = null   // cita nueva: formulario vacío
+                                navController.navigate("formulario")
+                            },
+                            onEditar = { navController.navigate("formulario") }
+                        )
+                    }
+                    composable("formulario") {
+                        FormularioScreen(citaEnEdicion = viewModel.citaEnEdicion) { cita ->
+                            if (viewModel.citaEnEdicion == null) viewModel.guardar(cita)
+                            else viewModel.actualizar(cita)
+                            navController.popBackStack()
                         }
                     }
                 }
