@@ -20,7 +20,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "salon_db"
 
-                ).fallbackToDestructiveMigration()
+                ).fallbackToDestructiveMigration(true)
                 .build()
                 INSTANCE = instance
                 instance
