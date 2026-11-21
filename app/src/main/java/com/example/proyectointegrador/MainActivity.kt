@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.proyectointegrador.presentation.CierreScreen
+import com.example.proyectointegrador.presentation.ComprobanteScreen
 import com.example.proyectointegrador.presentation.FormularioScreen
 import com.example.proyectointegrador.presentation.ListaScreen
 import com.example.proyectointegrador.presentation.MovimientoScreen
@@ -42,6 +43,7 @@ class MainActivity : ComponentActivity() {
                             },
                             onEditar = { navController.navigate("formulario") },
                             onCerrar = { navController.navigate("cierre") },
+                            onComprobante = { navController.navigate("comprobante") },
                             onProductos = { navController.navigate("productos") }
                         )
                     }
@@ -64,6 +66,11 @@ class MainActivity : ComponentActivity() {
                                 viewModel.actualizar(citaCerrada)
                                 navController.popBackStack()
                             }
+                        }
+                    }
+                    composable("comprobante") {
+                        viewModel.citaEnEdicion?.let { cita ->
+                            ComprobanteScreen(cita) { navController.popBackStack() }
                         }
                     }
                     composable("productos") {

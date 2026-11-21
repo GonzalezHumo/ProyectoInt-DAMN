@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -43,13 +44,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.proyectointegrador.data.Cita
 import com.example.proyectointegrador.viewmodel.CitaViewModel
-import androidx.compose.material3.Button
 
 private val estatusOpciones = listOf("Pendiente", "Confirmada", "Finalizada", "Cancelada")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () -> Unit, onCerrar: () -> Unit, onProductos: () -> Unit) {    val citas by viewModel.citas.collectAsState(initial = emptyList())
+fun ListaScreen(
+    viewModel: CitaViewModel,
+    onAgregar: () -> Unit,
+    onEditar: () -> Unit,
+    onCerrar: () -> Unit,
+    onComprobante: () -> Unit,
+    onProductos: () -> Unit
+) {
+    // Cada vez que Room cambia, esta lista se actualiza sola
+    val citas by viewModel.citas.collectAsState(initial = emptyList())
 
     var menuFiltro by remember { mutableStateOf(false) }
     var filtro by remember { mutableStateOf("Todas") }
@@ -125,7 +134,10 @@ fun ListaScreen(viewModel: CitaViewModel, onAgregar: () -> Unit, onEditar: () ->
                             viewModel.citaEnEdicion = cita
                             onCerrar()
                         },
-
+                        onComprobante = {
+                            viewModel.citaEnEdicion = cita
+                            onComprobante()
+                        },
                         onEliminar = { viewModel.eliminar(cita) }
                     )
                 }
@@ -140,8 +152,8 @@ fun CitaItem(
     onCambiarEstatus: (String) -> Unit,
     onEditar: () -> Unit,
     onCerrar: () -> Unit,
+    onComprobante: () -> Unit,
     onEliminar: () -> Unit
-
 ) {
     var menuEstatus by remember { mutableStateOf(false) }
 
@@ -186,13 +198,7 @@ fun CitaItem(
                         }
                     }
                 }
-                // Solo se puede cerrar una cita que sigue abierta
-                if (cita.estatus != "Finalizada" && cita.estatus != "Cancelada") {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Button(onClick = onCerrar) {
-                        Text("Cerrar cita")
-                    }
-                }
+
                 // Resumen de cobro: solo cuando la cita ya está finalizada
                 if (cita.estatus == "Finalizada") {
                     val descuento = if (cita.anticipo) cita.montoAnticipo else 0.0
@@ -208,6 +214,18 @@ fun CitaItem(
                         "Total a cobrar: $${"%.2f".format(total)}",
                         style = MaterialTheme.typography.titleSmall
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Button(onClick = onComprobante) {
+                        Text("Ver comprobante")
+                    }
+                }
+
+                // Solo se puede cerrar una cita que sigue abierta
+                if (cita.estatus != "Finalizada" && cita.estatus != "Cancelada") {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Button(onClick = onCerrar) {
+                        Text("Cerrar cita")
+                    }
                 }
             }
             IconButton(onClick = onEditar) {
