@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.proyectointegrador.presentation.CierreScreen
 import com.example.proyectointegrador.presentation.FormularioScreen
 import com.example.proyectointegrador.presentation.ListaScreen
+import com.example.proyectointegrador.presentation.MovimientoScreen
 import com.example.proyectointegrador.presentation.ProductoFormScreen
 import com.example.proyectointegrador.presentation.ProductosScreen
 import com.example.proyectointegrador.ui.theme.ProyectoIntegradorTheme
@@ -73,6 +74,8 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("producto_form")
                             },
                             onEditar = { navController.navigate("producto_form") },
+                            onEntrada = { navController.navigate("entrada") },
+                            onVenta = { navController.navigate("venta") },
                             onVolver = { navController.popBackStack() }
                         )
                     }
@@ -81,6 +84,23 @@ class MainActivity : ComponentActivity() {
                             if (productoViewModel.productoEnEdicion == null) productoViewModel.guardar(producto)
                             else productoViewModel.actualizar(producto)
                             navController.popBackStack()
+                        }
+                    }
+                    composable("entrada") {
+                        // El producto elegido viene de la variable del ViewModel
+                        productoViewModel.productoEnEdicion?.let { producto ->
+                            MovimientoScreen(producto, esEntrada = true) { actualizado ->
+                                productoViewModel.actualizar(actualizado)
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                    composable("venta") {
+                        productoViewModel.productoEnEdicion?.let { producto ->
+                            MovimientoScreen(producto, esEntrada = false) { actualizado ->
+                                productoViewModel.actualizar(actualizado)
+                                navController.popBackStack()
+                            }
                         }
                     }
                 }
