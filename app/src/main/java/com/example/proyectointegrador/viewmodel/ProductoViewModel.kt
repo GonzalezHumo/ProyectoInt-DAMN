@@ -1,6 +1,9 @@
 package com.example.proyectointegrador.viewmodel
 
 import android.app.Application
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyectointegrador.data.AppDatabase
@@ -16,6 +19,9 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
 
     // Lista reactiva de productos
     val productos = repository.productos
+
+    // Producto que se está editando; null significa que el formulario es para uno nuevo
+    var productoEnEdicion by mutableStateOf<Producto?>(null)
 
     fun guardar(producto: Producto) {
         viewModelScope.launch { repository.guardar(producto) }

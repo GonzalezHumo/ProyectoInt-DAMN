@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.proyectointegrador.presentation.CierreScreen
 import com.example.proyectointegrador.presentation.FormularioScreen
 import com.example.proyectointegrador.presentation.ListaScreen
+import com.example.proyectointegrador.presentation.ProductoFormScreen
 import com.example.proyectointegrador.presentation.ProductosScreen
 import com.example.proyectointegrador.ui.theme.ProyectoIntegradorTheme
 import com.example.proyectointegrador.viewmodel.CitaViewModel
@@ -67,9 +68,20 @@ class MainActivity : ComponentActivity() {
                     composable("productos") {
                         ProductosScreen(
                             viewModel = productoViewModel,
-                            onAgregar = { },   // el formulario de productos se conecta en el paso 3
+                            onAgregar = {
+                                productoViewModel.productoEnEdicion = null   // producto nuevo
+                                navController.navigate("producto_form")
+                            },
+                            onEditar = { navController.navigate("producto_form") },
                             onVolver = { navController.popBackStack() }
                         )
+                    }
+                    composable("producto_form") {
+                        ProductoFormScreen(productoViewModel.productoEnEdicion) { producto ->
+                            if (productoViewModel.productoEnEdicion == null) productoViewModel.guardar(producto)
+                            else productoViewModel.actualizar(producto)
+                            navController.popBackStack()
+                        }
                     }
                 }
             }

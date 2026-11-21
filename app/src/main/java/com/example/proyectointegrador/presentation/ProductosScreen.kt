@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,8 +37,7 @@ import com.example.proyectointegrador.viewmodel.ProductoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductosScreen(viewModel: ProductoViewModel, onAgregar: () -> Unit, onVolver: () -> Unit) {
-    // Cada vez que Room cambia, esta lista se actualiza sola
+fun ProductosScreen(viewModel: ProductoViewModel, onAgregar: () -> Unit, onEditar: () -> Unit, onVolver: () -> Unit) {    // Cada vez que Room cambia, esta lista se actualiza sola
     val productos by viewModel.productos.collectAsState(initial = emptyList())
 
     Scaffold(
@@ -77,6 +77,10 @@ fun ProductosScreen(viewModel: ProductoViewModel, onAgregar: () -> Unit, onVolve
                 items(productos, key = { it.id }) { producto ->
                     ProductoItem(
                         producto = producto,
+                        onEditar = {
+                            viewModel.productoEnEdicion = producto
+                            onEditar()
+                        },
                         onEliminar = { viewModel.eliminar(producto) }
                     )
                 }
@@ -86,8 +90,7 @@ fun ProductosScreen(viewModel: ProductoViewModel, onAgregar: () -> Unit, onVolve
 }
 
 @Composable
-fun ProductoItem(producto: Producto, onEliminar: () -> Unit) {
-    Card(
+fun ProductoItem(producto: Producto, onEditar: () -> Unit, onEliminar: () -> Unit) {    Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -105,6 +108,10 @@ fun ProductoItem(producto: Producto, onEliminar: () -> Unit) {
                 Text("Precio: $${"%.2f".format(producto.precioVenta)}  |  Costo: $${"%.2f".format(producto.costo)}")
                 Text("Existencias: ${producto.existencias} (mínimo ${producto.stockMinimo})")
             }
+            IconButton(onClick = onEditar) {
+                Icon(Icons.Default.Edit, contentDescription = "Editar producto")
+            }
+
             IconButton(onClick = onEliminar) {
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar producto")
             }
