@@ -78,28 +78,41 @@ fun ProductosScreen(
                 Text("Aún no hay productos. ¡Agrega uno!")
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
-                contentPadding = PaddingValues(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(productos, key = { it.id }) { producto ->
-                    ProductoItem(
-                        producto = producto,
-                        onEditar = {
-                            viewModel.productoEnEdicion = producto
-                            onEditar()
-                        },
-                        onEntrada = {
-                            viewModel.productoEnEdicion = producto
-                            onEntrada()
-                        },
-                        onVenta = {
-                            viewModel.productoEnEdicion = producto
-                            onVenta()
-                        },
-                        onEliminar = { viewModel.eliminar(producto) }
+            // Cuántos productos tienen las existencias iguales o por debajo de su mínimo
+            val bajos = productos.count { it.existencias <= it.stockMinimo }
+
+            Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                if (bajos > 0) {
+                    Text(
+                        "⚠ $bajos producto(s) con stock bajo",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
+                }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(productos, key = { it.id }) { producto ->
+                        ProductoItem(
+                            producto = producto,
+                            onEditar = {
+                                viewModel.productoEnEdicion = producto
+                                onEditar()
+                            },
+                            onEntrada = {
+                                viewModel.productoEnEdicion = producto
+                                onEntrada()
+                            },
+                            onVenta = {
+                                viewModel.productoEnEdicion = producto
+                                onVenta()
+                            },
+                            onEliminar = { viewModel.eliminar(producto) }
+                        )
+                    }
                 }
             }
         }
@@ -131,6 +144,15 @@ fun ProductoItem(
                 )
                 Text("Precio: $${"%.2f".format(producto.precioVenta)}  |  Costo: $${"%.2f".format(producto.costo)}")
                 Text("Existencias: ${producto.existencias} (mínimo ${producto.stockMinimo})")
+
+                // Aviso cuando las piezas llegan al mínimo o están por debajo
+                if (producto.existencias <= producto.stockMinimo) {
+                    Text(
+                        "¡Stock bajo!",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
 
                 // Botones para sumar (entrada) o descontar (venta) piezas
                 Row(
