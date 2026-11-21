@@ -17,6 +17,7 @@ import com.example.proyectointegrador.presentation.ListaScreen
 import com.example.proyectointegrador.presentation.MovimientoScreen
 import com.example.proyectointegrador.presentation.ProductoFormScreen
 import com.example.proyectointegrador.presentation.ProductosScreen
+import com.example.proyectointegrador.presentation.ComisionesScreen
 import com.example.proyectointegrador.ui.theme.ProyectoIntegradorTheme
 import com.example.proyectointegrador.viewmodel.CitaViewModel
 import com.example.proyectointegrador.viewmodel.ProductoViewModel
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
                             onEditar = { navController.navigate("formulario") },
                             onCerrar = { navController.navigate("cierre") },
                             onComprobante = { navController.navigate("comprobante") },
+                            onComisiones = { navController.navigate("comisiones") },
                             onProductos = { navController.navigate("productos") }
                         )
                     }
@@ -72,6 +74,11 @@ class MainActivity : ComponentActivity() {
                         viewModel.citaEnEdicion?.let { cita ->
                             ComprobanteScreen(cita) { navController.popBackStack() }
                         }
+                    }
+                    composable("comisiones") {
+                        // Se toma la lista actual de citas para calcular las comisiones
+                        val citas by viewModel.citas.collectAsState(initial = emptyList())
+                        ComisionesScreen(citas) { navController.popBackStack() }
                     }
                     composable("productos") {
                         ProductosScreen(

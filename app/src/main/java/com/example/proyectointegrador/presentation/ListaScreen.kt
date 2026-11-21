@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -55,6 +56,7 @@ fun ListaScreen(
     onEditar: () -> Unit,
     onCerrar: () -> Unit,
     onComprobante: () -> Unit,
+    onComisiones: () -> Unit,
     onProductos: () -> Unit
 ) {
     // Cada vez que Room cambia, esta lista se actualiza sola
@@ -76,6 +78,9 @@ fun ListaScreen(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
                 actions = {
+                    IconButton(onClick = onComisiones) {
+                        Icon(Icons.Default.AttachMoney, contentDescription = "Comisiones")
+                    }
                     IconButton(onClick = onProductos) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Productos")
                     }
